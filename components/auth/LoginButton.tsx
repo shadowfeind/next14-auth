@@ -8,7 +8,11 @@ interface LoginButtonProps {
   asChild?: boolean;
 }
 
-const LoginButton = ({ children, mode, asChild }: LoginButtonProps) => {
+const LoginButton = ({
+  children,
+  mode = "redirect",
+  asChild,
+}: LoginButtonProps) => {
   const router = useRouter();
   const clickHandler = () => router.push("/auth/login");
   return (

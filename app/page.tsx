@@ -18,9 +18,11 @@ export default function Home() {
             font.className
           )}
         >
-          Auth
+          🔐 Auth
         </h1>
-        <p className="text-white text-lg">Next Authentication</p>
+        <p className="text-white text-lg pb-4">
+          Nextjs 14 Auth.js v5 Authentication
+        </p>
       </div>
       <LoginButton>
         <Button variant="secondary" size="lg">
