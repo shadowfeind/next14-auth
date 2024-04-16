@@ -7,6 +7,18 @@ import { getUserById } from "./data/user"
 // db session doesnot work in edge
 //we are using auth.config as prisma does not support edge
 export const { handlers: {GET, POST}, auth, signIn, signOut } = NextAuth({
+  pages: {
+    signIn: "/auth/login",
+    error: "/auth/error"
+  },
+  events: {
+    async linkAccount({user}){
+      await db.user.update({
+        where: { id: user.id },
+        data: { emailVerified: new Date()}
+      })
+    } 
+  },
   callbacks: {
     async session({ session, token }: any){
       if(token.sub && session.user){
