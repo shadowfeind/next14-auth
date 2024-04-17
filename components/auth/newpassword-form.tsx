@@ -3,7 +3,7 @@
 import * as z from "zod";
 import { CardWrapper } from "./CardWrapper";
 import { useForm } from "react-hook-form";
-import { LoginSchema } from "@/schemas";
+import { PasswordSchema } from "@/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
@@ -15,36 +15,34 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import { FormError } from "../formError";
 import { FormSuccess } from "../FormSuccess";
 import { login } from "@/actions/login";
 import { useState, useTransition } from "react";
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { reset } from "@/actions/reset";
+import { FormError } from "../formError";
+import { useSearchParams } from "next/navigation";
+import { newPassword } from "@/actions/newpassword";
 
-export const LoginForm = () => {
+export const NewPasswordForm = () => {
   const [error, setError] = useState<string | undefined>("");
   const [success, setSuccess] = useState<string | undefined>("");
   const [isPending, startTransition] = useTransition();
-  const form = useForm<z.infer<typeof LoginSchema>>({
-    resolver: zodResolver(LoginSchema),
+  const form = useForm<z.infer<typeof PasswordSchema>>({
+    resolver: zodResolver(PasswordSchema),
     defaultValues: {
-      email: "",
       password: "",
     },
   });
+
   const searchParams = useSearchParams();
+  const token = searchParams.get("token");
 
-  const urlError =
-    searchParams.get("error") === "OAuthAccountNotLinked"
-      ? "Email already in use with provider"
-      : "";
-
-  const handleSubmit = (values: z.infer<typeof LoginSchema>) => {
+  const handleSubmit = (values: z.infer<typeof PasswordSchema>) => {
     setError("");
     setSuccess("");
     startTransition(() => {
-      login(values).then((data) => {
+      newPassword(values, token).then((data) => {
         setError(data?.error);
         setSuccess(data?.success);
       });
@@ -52,33 +50,12 @@ export const LoginForm = () => {
   };
   return (
     <CardWrapper
-      headerLabel="Welcome Back"
-      backButtonLabel="Don't have an account?"
-      backButtonHref="/auth/register"
-      showSocial
+      headerLabel="Forgot Password"
+      backButtonLabel="Back to login"
+      backButtonHref="/auth/login"
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          <div className="space-y-4">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      placeholder="user@example.com"
-                      type="email"
-                      disabled={isPending}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </div>
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -89,7 +66,7 @@ export const LoginForm = () => {
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="password"
+                      placeholder="******"
                       type="password"
                       disabled={isPending}
                     />
@@ -99,13 +76,10 @@ export const LoginForm = () => {
               )}
             />
           </div>
-          <Button size="sm" variant="link" asChild className="px-0 font-normal">
-            <Link href="/auth/reset">Forgot Password</Link>
-          </Button>
           <FormSuccess message={success} />
-          <FormError message={error || urlError} />
+          <FormError message={error} />
           <Button type="submit" className="w-full" disabled={isPending}>
-            {isPending ? "Authenticating..." : "Login"}
+            {isPending ? "Resetting..." : "Reset"}
           </Button>
         </form>
       </Form>
