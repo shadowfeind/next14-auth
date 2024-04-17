@@ -11,3 +11,15 @@ export const getVerificationTokenByEmail = async(email: string) => {
         return null
     }
 }
+
+export const getVerificationTokenBYToken = async(token: string) => {
+    try {
+        const verificationToken = await db.verificationToken.findUnique({
+            where: { token }
+        })       
+        
+        return verificationToken
+    } catch (error) {
+        return null
+    }
+}
