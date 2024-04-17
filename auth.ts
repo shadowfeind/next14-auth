@@ -3,6 +3,7 @@ import { PrismaAdapter } from "@auth/prisma-adapter"
 import authConfig from "./auth.config"
 import { db } from "./lib/db"
 import { getUserById } from "./data/user"
+import { getTwoFactorConfirmationByUserId } from "./data/twofactor-confirmation"
 
 // db session doesnot work in edge
 //we are using auth.config as prisma does not support edge
@@ -28,6 +29,17 @@ export const { handlers: {GET, POST}, auth, signIn, signOut } = NextAuth({
 
       //preventing singn without email verification
       if(!existingUser?.emailVerified) return false
+
+      if(existingUser.isTwoFactorEnabled){
+        const twoFactorConfirmation = await getTwoFactorConfirmationByUserId(existingUser.id)
+
+        if(!twoFactorConfirmation) return false
+
+        //Delete 2fa for next login
+        await db.twoFactorConfirmation.delete({
+          where: {id: twoFactorConfirmation.id}
+        })
+      }
 
       return true
     },
