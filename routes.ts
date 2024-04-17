@@ -29,4 +29,4 @@ export const authPrefix = "/api/auth"
  * Route after login
  * @type{string}
  */
-export const LOGIN_REDIRECT = "/"
+export const LOGIN_REDIRECT = "/settings"
